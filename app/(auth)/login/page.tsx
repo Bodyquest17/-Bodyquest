@@ -1,27 +1,122 @@
-import Link from "next/link";
-import { Logo } from "@/components/Logo";
-import { PhaseNotice } from "@/components/PhaseNotice";
 
-export const metadata = { title: "Anmelden" };
+"use client";
+
+import { useState, type FormEvent } from "react";
+import Link from "next/link";
+import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleLogin(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (!url || !key) {
+        throw new Error("Supabase ist nicht richtig konfiguriert.");
+      }
+
+      const supabase = createClient(url, key);
+
+      const { error: loginError } =
+        await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+
+      if (loginError) {
+        throw loginError;
+      }
+
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Die Anmeldung ist fehlgeschlagen."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <main className="mx-auto min-h-dvh max-w-lg px-6 pt-[max(3rem,env(safe-area-inset-top))]">
-      <Link href="/" aria-label="Zur Startseite"><Logo /></Link>
-      <h1 className="mt-8 font-display text-4xl font-bold">Anmelden</h1>
-      <PhaseNotice phase="Phase 2">Die echte Anmeldung mit Supabase wird im nächsten Schritt aktiviert. Bis dahin ist das Formular gesperrt.</PhaseNotice>
-      <form className="grid gap-4" aria-disabled>
-        <label className="grid gap-1 text-sm text-muted">E-Mail
-          <input className="field" type="email" autoComplete="email" disabled />
-        </label>
-        <label className="grid gap-1 text-sm text-muted">Passwort
-          <input className="field" type="password" autoComplete="current-password" disabled />
-        </label>
-        <button className="btn-primary" type="submit" disabled>Anmelden</button>
-      </form>
-      <div className="mt-6 grid gap-3 text-center text-sm">
-        <Link href="/registrieren" className="text-accent underline">Noch kein Konto? Registrieren</Link>
-        <Link href="/dashboard" className="text-muted underline">Oberfläche ansehen (Vorschau)</Link>
+    <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+      <div className="w-full max-w-md">
+        <h1 className="text-4xl font-bold text-center mb-3">
+          BODYQUEST
+        </h1>
+
+        <p className="text-center text-gray-400 mb-10">
+          Deine Mission beginnt hier.
+        </p>
+
+        <form onSubmit={handleLogin} className="space-y-5">
+          <div>
+            <label htmlFor="email" className="block mb-2">
+              E-Mail-Adresse
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="deine@email.de"
+              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-700 text-white"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block mb-2">
+              Passwort
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Dein Passwort"
+              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-700 text-white"
+            />
+          </div>
+
+          {error && (
+            <p role="alert" className="text-red-400 text-sm">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-white text-black font-bold p-4 rounded-xl disabled:opacity-50"
+          >
+            {loading ? "Anmeldung läuft..." : "ANMELDEN"}
+          </button>
+        </form>
+
+        <p className="text-center text-gray-400 mt-8">
+          Noch kein Konto?{" "}
+          <Link href="/registrieren" className="text-white underline">
+            Jetzt registrieren
+          </Link>
+        </p>
       </div>
     </main>
   );
