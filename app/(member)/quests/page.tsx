@@ -34,7 +34,40 @@ export default function QuestsPage() {
       return;
     }
 
-    const list = (t.data ?? []) as Mission[];
+
+const list = (t.data ?? []) as Mission[];
+
+// Missionen sofort anzeigen, auch wenn die
+// Ablehnungsbegründung nicht geladen werden kann.
+setToday(list);
+
+if (list.some((m) => m.status === "rejected")) {
+  const { data: notes, error: notesError } =
+    await sb.rpc("get_my_rejection_notes");
+
+  if (notesError) {
+    console.error(
+      "Ablehnungsbegründungen:",
+      notesError.message
+    );
+  } else {
+    const noteMap = new Map<string, string | null>(
+      (notes ?? []).map(
+        (n: {
+          mission_id: string;
+          rejection_note: string | null;
+        }) => [n.mission_id, n.rejection_note]
+      )
+    );
+
+    setToday(
+      list.map((m) => ({
+        ...m,
+        rejection_note: noteMap.get(m.id) ?? null
+      }))
+    );
+  }
+}
     
 const rejectedMissions = list.filter(
   (m) => m.status === "rejected"
