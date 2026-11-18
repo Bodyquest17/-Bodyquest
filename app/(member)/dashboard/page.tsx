@@ -1,4 +1,3 @@
-import { Flame, Swords, Trophy } from "lucide-react";
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -6,17 +5,14 @@ import { Flame, PartyPopper, Target } from "lucide-react";
 import { XpBar } from "@/components/XpBar";
 import { DayRing } from "@/components/DayRing";
 import { EmptyState } from "@/components/EmptyState";
-import { PhaseNotice } from "@/components/PhaseNotice";
 import { MissionCard, type Mission } from "@/components/MissionCard";
 import { getSupabase } from "@/lib/supabase";
 import { useProfile } from "@/lib/useProfile";
 import { SLOGAN, goalLabel, rankForLevel } from "@/lib/goals";
 
-export const metadata = { title: "Start" };
 type Progress = { percent: number; label: string; goal: string; goal_reached: boolean };
 type Reward = { xp: number; bonus: boolean; levelUp: boolean; level: number };
 
-const WEEK = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 const NEXT_GOALS = [
   { key: "gewicht_halten", label: "Gewicht halten" },
   { key: "muskelaufbau", label: "Muskeln aufbauen" },
@@ -25,8 +21,6 @@ const NEXT_GOALS = [
 ];
 
 export default function DashboardPage() {
-  // Phase 4: Werte kommen aus der Datenbank. Bis dahin zeigt die Oberfläche ehrliche Nullwerte.
-  const xp = 0, streak = 0, done = 0, total = 0;
   const { loading, profile, error, reload } = useProfile({ requireOnboarding: true });
   const [missions, setMissions] = useState<Mission[]>([]);
   const [progress, setProgress] = useState<Progress | null>(null);
@@ -69,17 +63,13 @@ export default function DashboardPage() {
 
   const done = missions.filter((m) => m.status === "done").length;
 
-return (
-<div className="grid gap-4">
-<header>
-        <p className="text-muted">Willkommen zurück</p>
-        <h1 className="font-display text-4xl font-bold leading-none">Bereit für deine Quests?</h1>
+  return (
+    <div className="grid gap-4">
+      <header>
         <p className="text-muted">Hallo {profile.username ?? "Athlet"} · {rankForLevel(profile.level)}</p>
         <h1 className="font-display text-4xl font-bold leading-none">{SLOGAN}</h1>
-</header>
-      <PhaseNotice phase="Vorschau">Noch ohne Konto. Echte Daten erscheinen ab Phase 4.</PhaseNotice>
+      </header>
 
-      <XpBar xp={xp} />
       {progress?.goal_reached && (
         <section className="card grid gap-3 border border-accent/40" aria-label="Ziel erreicht">
           <p className="flex items-center gap-2 font-display text-2xl font-semibold">
@@ -104,30 +94,19 @@ return (
 
       <XpBar xp={profile.total_xp} />
 
-<div className="grid grid-cols-2 gap-4">
-<section className="card flex items-center gap-3" aria-label="Streak">
-<Flame className="h-9 w-9 text-accent" aria-hidden />
-<div>
-            <p className="font-display text-3xl font-bold leading-none">{streak}</p>
+      <div className="grid grid-cols-2 gap-4">
+        <section className="card flex items-center gap-3" aria-label="Streak">
+          <Flame className="h-9 w-9 text-accent" aria-hidden />
+          <div>
             <p className="font-display text-3xl font-bold leading-none">{profile.streak}</p>
-<p className="text-sm text-muted">Tage in Folge</p>
-</div>
-</section>
-<section className="card flex items-center justify-center" aria-label="Tagesfortschritt">
-          <DayRing done={done} total={total} />
+            <p className="text-sm text-muted">Tage in Folge</p>
+          </div>
+        </section>
+        <section className="card flex items-center justify-center" aria-label="Tagesfortschritt">
           <DayRing done={done} total={missions.length} />
-</section>
-</div>
+        </section>
+      </div>
 
-      <section aria-labelledby="heute">
-        <h2 id="heute" className="mb-3 font-display text-2xl font-semibold">Heutige Quests</h2>
-        <EmptyState icon={Swords} title="Noch keine Quests für heute" text="Sobald Quests veröffentlicht sind, findest du sie hier." />
-      </section>
-
-      <section aria-labelledby="challenge">
-        <h2 id="challenge" className="mb-3 font-display text-2xl font-semibold">Aktive Challenge</h2>
-        <EmptyState icon={Trophy} title="Keine aktive Challenge" text="Tritt einer 7-, 14- oder 30-Tage-Challenge bei, sobald eine verfügbar ist." />
-      </section>
       {progress && (
         <section className="card" aria-label="Zielfortschritt">
           <p className="flex items-center gap-2 text-sm text-muted">
@@ -140,17 +119,6 @@ return (
         </section>
       )}
 
-      <section aria-labelledby="woche" className="card">
-        <h2 id="woche" className="mb-3 font-display text-2xl font-semibold">Deine Woche</h2>
-        <ol className="grid grid-cols-7 gap-2 text-center text-xs text-muted">
-          {WEEK.map((d) => (
-            <li key={d} className="grid gap-1">
-              <span aria-hidden className="mx-auto h-9 w-9 rounded-full border border-white/10 bg-bg" />
-              <span>{d}</span>
-              <span className="sr-only">: keine Quests erledigt</span>
-            </li>
-          ))}
-        </ol>
       <section aria-labelledby="heute">
         <h2 id="heute" className="mb-3 font-display text-2xl font-semibold">Heutige Missionen</h2>
         {msg && <p role="alert" className="mb-3 text-sm text-red-400">{msg}</p>}
@@ -161,6 +129,7 @@ return (
             {missions.map((m) => <MissionCard key={m.id} m={m} busy={busy === m.id} onComplete={complete} />)}
           </ul>
         )}
-</section>
-</div>
-);
+      </section>
+    </div>
+  );
+}
