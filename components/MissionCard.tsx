@@ -21,8 +21,8 @@ export type Mission = {
   xp: number;
   status: "open" | "pending" | "approved" | "rejected" | "done";
   why: string | null;
-};
   rejection_note?: string | null;
+  };
 
 
 const ICONS = {
