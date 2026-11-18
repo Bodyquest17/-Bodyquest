@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Trophy, Medal, Users, ChevronRight } from "lucide-react";
 import { getSupabase } from "@/lib/supabase";
 
-type Player = {
+export type Player = {
+  user_id: string;
   username: string;
   avatar_url: string | null;
   level: number;
@@ -18,13 +19,16 @@ export default function LeaderboardPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let active = true;
     async function loadLeaderboard() {
       const { data, error: requestError } = await getSupabase().rpc("get_bodyquest_leaderboard");
+      if (!active) return;
       if (requestError) setError(requestError.message);
       else setPlayers((data ?? []) as Player[]);
       setLoading(false);
     }
     void loadLeaderboard();
+    return () => { active = false; };
   }, []);
 
   return (
@@ -50,20 +54,17 @@ export default function LeaderboardPage() {
           <div className="grid gap-3">
             {players.map((player, index) => (
               <Link
-                key={`${player.username}-${index}`}
-                href={`/leaderboard/${encodeURIComponent(player.username)}`}
-                aria-label={`Öffentliches Profil von ${player.username} ansehen`}
-                className="flex items-center gap-3 rounded-xl border border-white/10 p-3 transition-colors hover:border-[#B7F34B]/60 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#B7F34B]"
+                key={player.user_id}
+                href={`/leaderboard/${encodeURIComponent(player.user_id)}`}
+                aria-label={`Profil von ${player.username} ansehen, Platz ${index + 1}`}
+                className="flex items-center gap-3 rounded-xl border border-white/10 p-3 transition-colors hover:border-accent/60 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
               >
                 <div className="flex w-10 shrink-0 items-center justify-center">
                   {index < 3 ? (
                     <Medal className={`h-7 w-7 ${index === 0 ? "text-yellow-400" : index === 1 ? "text-gray-300" : "text-amber-600"}`} />
-                  ) : (
-                    <span className="font-bold text-muted">#{index + 1}</span>
-                  )}
+                  ) : <span className="font-bold text-muted">#{index + 1}</span>}
                 </div>
                 {player.avatar_url ? (
-                  // Avatar URLs come from the existing public leaderboard RPC.
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={player.avatar_url} alt="" className="h-12 w-12 rounded-full object-cover" />
                 ) : (
@@ -75,9 +76,9 @@ export default function LeaderboardPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-[#B7F34B]">{player.total_xp.toLocaleString("de-DE")} XP</p>
-                  <p className="text-xs text-muted">Profil ansehen</p>
+                  <p className="text-xs text-muted">Platz {index + 1}</p>
                 </div>
-                <ChevronRight className="h-4 w-4 shrink-0 text-muted" aria-hidden />
+                <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
               </Link>
             ))}
           </div>
