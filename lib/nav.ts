@@ -1,10 +1,10 @@
-
 import {
   Home,
   Swords,
   Trophy,
   Medal,
   TrendingUp,
+  HeartPulse,
   User,
   LayoutDashboard,
   Flag,
@@ -20,6 +20,7 @@ export const memberNav = [
   { href: "/challenges", label: "Challenges", icon: Trophy },
   { href: "/leaderboard", label: "Rangliste", icon: Medal },
   { href: "/fortschritt", label: "Fortschritt", icon: TrendingUp },
+  { href: "/health", label: "Health", icon: HeartPulse },
   { href: "/profil", label: "Profil", icon: User },
 ] as const;
 
