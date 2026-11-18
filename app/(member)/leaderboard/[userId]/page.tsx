@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Trophy, Users, Zap } from "lucide-react";
+import { ArrowLeft, Trophy, Users, Zap, X } from "lucide-react";
 import { getSupabase } from "@/lib/supabase";
 
 type Player = {
@@ -21,10 +21,16 @@ export default function PublicPlayerProfilePage() {
   const [rank, setRank] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [imageOpen, setImageOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
     async function loadProfile() {
+      setLoading(true);
+      setError("");
+      setPlayer(null);
+      setRank(null);
+      setImageOpen(false);
       const { data, error: requestError } = await getSupabase().rpc("get_bodyquest_leaderboard");
       if (!active) return;
       if (requestError) {
@@ -40,6 +46,15 @@ export default function PublicPlayerProfilePage() {
     void loadProfile();
     return () => { active = false; };
   }, [userId]);
+
+  useEffect(() => {
+    if (!imageOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setImageOpen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [imageOpen]);
 
   return (
     <main className="grid gap-5">
@@ -58,10 +73,17 @@ export default function PublicPlayerProfilePage() {
         <section className="card grid gap-5">
           <div className="flex items-center gap-4">
             {player.avatar_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={player.avatar_url} alt="" className="h-20 w-20 rounded-full object-cover" />
+              <button
+                type="button"
+                onClick={() => setImageOpen(true)}
+                aria-label={`Profilbild von ${player.username} vergrößern`}
+                className="h-20 w-20 shrink-0 cursor-zoom-in overflow-hidden rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={player.avatar_url} alt={`Profilbild von ${player.username}`} className="h-full w-full object-cover" />
+              </button>
             ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/10"><Users className="h-9 w-9" /></div>
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-white/10"><Users className="h-9 w-9" /></div>
             )}
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-accent">Öffentliches Athletenprofil</p>
@@ -72,16 +94,3 @@ export default function PublicPlayerProfilePage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl bg-white/5 p-4">
               <div className="flex items-center gap-2 text-sm text-muted"><Zap className="h-4 w-4 text-accent" /> Gesamt-XP</div>
-              <p className="mt-2 text-2xl font-bold text-accent">{player.total_xp.toLocaleString("de-DE")}</p>
-            </div>
-            <div className="rounded-xl bg-white/5 p-4">
-              <div className="flex items-center gap-2 text-sm text-muted"><Trophy className="h-4 w-4 text-yellow-400" /> Rangliste</div>
-              <p className="mt-2 text-2xl font-bold">#{rank}</p>
-            </div>
-          </div>
-          <p className="text-xs text-muted">Hier sind nur öffentliche Ranglistendaten sichtbar. Körperdaten und Missionsnachweise bleiben privat.</p>
-        </section>
-      )}
-    </main>
-  );
-}
