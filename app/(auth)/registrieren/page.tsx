@@ -54,7 +54,7 @@ export default function RegisterPage() {
           data: {
             display_name: name.trim(),
           },
-          emailRedirectTo: `${window.location.origin}/login`,
+          emailRedirectTo: `${window.location.origin}/bestaetigt`,
         },
       });
 
