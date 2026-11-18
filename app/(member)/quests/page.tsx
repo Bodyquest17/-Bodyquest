@@ -35,7 +35,39 @@ export default function QuestsPage() {
     }
 
     const list = (t.data ?? []) as Mission[];
-    setToday(list);
+    
+const rejectedMissions = list.filter(
+  (m) => m.status === "rejected"
+);
+
+if (rejectedMissions.length > 0) {
+  const { data: notes, error: notesError } = await sb.rpc(
+    "get_my_rejection_notes"
+  );
+
+  if (notesError) {
+    setMsg(notesError.message);
+  } else {
+    const noteMap = new Map<string, string | null>(
+      (notes ?? []).map(
+        (n: { mission_id: string; rejection_note: string | null }) => [
+          n.mission_id,
+          n.rejection_note
+        ]
+      )
+    );
+
+    setToday(
+      list.map((m) => ({
+        ...m,
+        rejection_note: noteMap.get(m.id) ?? null
+      }))
+    );
+  }
+} else {
+  setToday(list);
+}
+
 
     const date = list[0]?.mission_date;
 
