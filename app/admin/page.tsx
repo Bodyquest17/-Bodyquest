@@ -43,11 +43,11 @@ export default function AdminHome() {
 
       setAuthorized(true);
 
-      const { data, error } = await sb
-        .from("mission_proofs")
-        .select("id,mission_id,user_id,image_path,created_at,status")
-        .eq("status", "pending")
-        .order("created_at", { ascending: true });
+      
+const { data, error } = await sb.rpc(
+  "get_pending_mission_proofs"
+);
+
 
       if (error) throw error;
 
