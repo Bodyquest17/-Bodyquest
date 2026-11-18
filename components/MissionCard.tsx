@@ -22,6 +22,8 @@ export type Mission = {
   status: "open" | "pending" | "approved" | "rejected" | "done";
   why: string | null;
 };
+  rejection_note?: string | null;
+
 
 const ICONS = {
   kraft: Dumbbell,
@@ -96,12 +98,25 @@ export function MissionCard({
         </p>
       )}
 
-      {rejected && (
-        <p className="flex items-center gap-2 font-semibold text-red-400">
-          <XCircle className="h-5 w-5" />
-          Nachweis abgelehnt
-        </p>
-      )}
+     
+{rejected && (
+  <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4">
+    <p className="flex items-center gap-2 font-semibold text-red-400">
+      <XCircle className="h-5 w-5" />
+      Nachweis abgelehnt
+    </p>
+
+    <p className="mt-2 text-sm text-white/90">
+      <strong>Begründung:</strong>{" "}
+      {m.rejection_note || "Keine Begründung verfügbar."}
+    </p>
+
+    <p className="mt-2 text-sm text-muted">
+      Du hast eine zweite Chance! Lade einen neuen Nachweis hoch.
+    </p>
+  </div>
+)}
+
 
       {onComplete && !done && !pending && (
         <button
