@@ -2,13 +2,20 @@
 "use client";
 
 import {
-  Activity, Apple, Check, Dumbbell, Moon,
-  Target, Lightbulb, Clock, XCircle, Camera
+  Activity,
+  Apple,
+  Check,
+  Clock3,
+  Dumbbell,
+  Lightbulb,
+  Moon,
+  Target,
+  XCircle,
 } from "lucide-react";
 
 import {
   CATEGORY_LABEL,
-  DIFFICULTY_LABEL
+  DIFFICULTY_LABEL,
 } from "@/lib/goals";
 
 export type Mission = {
@@ -19,39 +26,56 @@ export type Mission = {
   description: string;
   difficulty: number;
   xp: number;
-  status: "open" | "pending" | "approved" | "rejected" | "done";
+  status:
+    | "open"
+    | "pending"
+    | "approved"
+    | "rejected"
+    | "done";
   why: string | null;
   rejection_note?: string | null;
-  };
-
+};
 
 const ICONS = {
   kraft: Dumbbell,
   cardio: Activity,
   ernaehrung: Apple,
   regeneration: Moon,
-  disziplin: Target
+  disziplin: Target,
 } as const;
+
+type MissionCardProps = {
+  m: Mission;
+  busy: boolean;
+  onComplete?: (id: string) => void;
+};
 
 export function MissionCard({
   m,
   busy,
-  onComplete
-}: {
-  m: Mission;
-  busy: boolean;
-  onComplete?: (id: string) => void;
-}) {
-  const Icon = ICONS[m.category as keyof typeof ICONS] ?? Target;
+  onComplete,
+}: MissionCardProps) {
+  const Icon =
+    ICONS[m.category as keyof typeof ICONS] ?? Target;
 
-  const done = m.status === "done" || m.status === "approved";
+  const done =
+    m.status === "done" ||
+    m.status === "approved";
+
   const pending = m.status === "pending";
   const rejected = m.status === "rejected";
 
   return (
-    <li className={`card grid gap-3 ${done ? "opacity-70" : ""}`}>
+    <li
+      className={`card grid gap-3 ${
+        done ? "opacity-70" : ""
+      }`}
+    >
       <div className="flex items-start gap-3">
-        <Icon className="mt-1 h-7 w-7 shrink-0 text-accent" aria-hidden />
+        <Icon
+          className="mt-1 h-7 w-7 shrink-0 text-accent"
+          aria-hidden
+        />
 
         <div className="min-w-0 flex-1">
           <p className="text-xs text-muted">
@@ -78,8 +102,12 @@ export function MissionCard({
             className="mt-0.5 h-4 w-4 shrink-0 text-accent"
             aria-hidden
           />
+
           <span>
-            <strong className="text-white">Warum?</strong> {m.why}
+            <strong className="text-white">
+              Warum?
+            </strong>{" "}
+            {m.why}
           </span>
         </p>
       )}
@@ -87,46 +115,54 @@ export function MissionCard({
       {done && (
         <p className="flex items-center gap-2 font-semibold text-accent">
           <Check className="h-5 w-5" />
-          Genehmigt · +{m.xp} XP
+          Mission abgeschlossen · +{m.xp} XP
         </p>
       )}
 
       {pending && (
-        <p className="flex items-center gap-2 font-semibold text-yellow-400">
-          <Clock className="h-5 w-5" />
-          Nachweis wird geprüft
-        </p>
+        <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-4">
+          <p className="flex items-center gap-2 font-semibold text-yellow-400">
+            <Clock3 className="h-5 w-5" />
+            Nachweis wird geprüft
+          </p>
+
+          <p className="mt-2 text-sm text-white/80">
+            Dein Foto wurde eingereicht.
+            Nach der Adminfreigabe erhältst du
+            deine XP.
+          </p>
+        </div>
       )}
 
-     
-{rejected && (
-  <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4">
-    <p className="flex items-center gap-2 font-semibold text-red-400">
-      <XCircle className="h-5 w-5" />
-      Nachweis abgelehnt
-    </p>
+      {rejected && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4">
+          <p className="flex items-center gap-2 font-semibold text-red-400">
+            <XCircle className="h-5 w-5" />
+            Nachweis abgelehnt
+          </p>
 
-    <p className="mt-2 text-sm text-white/90">
-      <strong>Begründung:</strong>{" "}
-      {m.rejection_note || "Keine Begründung verfügbar."}
-    </p>
+          <p className="mt-2 text-sm text-white/90">
+            <strong>Begründung:</strong>{" "}
+            {m.rejection_note ||
+              "Keine Begründung verfügbar."}
+          </p>
 
-    <p className="mt-2 text-sm text-muted">
-      Du hast eine zweite Chance! Lade einen neuen Nachweis hoch.
-    </p>
-  </div>
-)}
-
+          <p className="mt-2 text-sm text-muted">
+            Du hast eine zweite Chance!
+            Lade einen neuen Nachweis hoch.
+          </p>
+        </div>
+      )}
 
       {onComplete && !done && !pending && (
         <button
-          className="btn-primary flex items-center justify-center gap-2"
+          type="button"
+          className="btn-primary"
           disabled={busy}
           onClick={() => onComplete(m.id)}
         >
-          <Camera className="h-5 w-5" />
           {busy
-            ? "Bitte warten..."
+            ? "Wird verarbeitet..."
             : rejected
               ? "Neuen Nachweis einreichen"
               : "Nachweis hochladen"}
