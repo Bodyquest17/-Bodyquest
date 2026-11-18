@@ -54,13 +54,7 @@ const { data, error } = await sb.rpc(
       const items: Proof[] = [];
 
       for (const proof of data ?? []) {
-        const { data: mission, error: missionError } = await sb
-          .from("daily_missions")
-          .select("title,xp")
-          .eq("id", proof.mission_id)
-          .single();
-
-        if (missionError) throw missionError;
+      
 
         const { data: signed, error: imageError } =
           await sb.storage
@@ -71,8 +65,10 @@ const { data, error } = await sb.rpc(
 
         items.push({
           ...proof,
-          title: mission.title,
-          xp: mission.xp,
+          
+title: proof.title,
+xp: proof.xp,
+
           image_url: signed?.signedUrl ?? null
         });
       }
