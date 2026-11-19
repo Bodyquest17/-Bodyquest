@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Camera, LogOut, TrendingUp, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import PremiumUnlock from "@/components/PremiumUnlock";
 import { getSupabase } from "@/lib/supabase";
 import { useProfile } from "@/lib/useProfile";
 import { GOALS, goalLabel, rankForLevel } from "@/lib/goals";
@@ -25,6 +26,7 @@ export default function ProfilePage() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [premiumOpen, setPremiumOpen] = useState(false);
 
   useEffect(() => {
     if (!profile) return;
@@ -127,6 +129,20 @@ export default function ProfilePage() {
         <span className="min-w-0 flex-1"><span className="block font-display text-lg font-bold">Mein Fortschritt</span><span className="block text-sm text-muted">XP, Level und deine Entwicklung ansehen</span></span>
         <ChevronRight className="h-5 w-5 shrink-0 text-muted" aria-hidden />
       </Link>
+
+      <section className="card grid gap-2">
+        <div className="flex items-center justify-between gap-3">
+          <div><h2 className="font-display text-xl font-bold">BodyQuest Premium</h2><p className="text-sm text-muted">Level 1–5 kostenlos · ab Level 6 Premium</p></div>
+          <button type="button" className="btn-primary" onClick={() => setPremiumOpen(true)}>{profile.level >= 5 ? "Level 6 freischalten" : "Premium ansehen"}</button>
+        </div>
+        {profile.level >= 5 && <p className="text-sm text-amber-300">Du hast Level 5 erreicht. Für weitere Level benötigst du eine aktive Premium-Mitgliedschaft.</p>}
+      </section>
+      {premiumOpen && <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/80 p-4" role="dialog" aria-modal="true" aria-label="Premium freischalten" onClick={() => setPremiumOpen(false)}>
+        <div className="w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="mb-2 flex justify-end"><button type="button" className="btn-ghost" onClick={() => { setPremiumOpen(false); void reload(); }}>Schließen ×</button></div>
+          <PremiumUnlock />
+        </div>
+      </div>}
 
       <section className="card flex items-center gap-4">
         <label className="relative h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded-full bg-bg" aria-label="Profilbild ändern">
