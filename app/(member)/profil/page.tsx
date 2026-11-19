@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, LogOut } from "lucide-react";
+import Link from "next/link";
+import { Camera, LogOut, TrendingUp, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { getSupabase } from "@/lib/supabase";
 import { useProfile } from "@/lib/useProfile";
@@ -120,6 +121,12 @@ export default function ProfilePage() {
   return (
     <div className="grid gap-4">
       <PageHeader title="Mein Profil" subtitle="Deine Daten sind standardmäßig privat." />
+
+      <Link href="/fortschritt" className="card flex items-center gap-3 transition-colors hover:border-accent/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" aria-label="Meinen Fortschritt öffnen">
+        <span className="rounded-xl bg-accent/10 p-3 text-accent"><TrendingUp className="h-6 w-6" aria-hidden /></span>
+        <span className="min-w-0 flex-1"><span className="block font-display text-lg font-bold">Mein Fortschritt</span><span className="block text-sm text-muted">XP, Level und deine Entwicklung ansehen</span></span>
+        <ChevronRight className="h-5 w-5 shrink-0 text-muted" aria-hidden />
+      </Link>
 
       <section className="card flex items-center gap-4">
         <label className="relative h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded-full bg-bg" aria-label="Profilbild ändern">
