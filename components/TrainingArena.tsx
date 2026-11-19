@@ -1,0 +1,7 @@
+"use client";
+import Link from "next/link";
+import { Dumbbell, House, Timer, HeartPulse, ArrowRight } from "lucide-react";
+export function TrainingArena() {
+ const items = [{label:"Bodyweight",detail:"Training ohne Geräte",icon:House,href:"/arena?category=bodyweight"},{label:"Gym",detail:"Maschinen & Gewichte",icon:Dumbbell,href:"/arena?category=gym"},{label:"Quick Workout",detail:"5–20 Minuten",icon:Timer,href:"/arena?category=quick"},{label:"Mobility & Recovery",detail:"Beweglichkeit & Erholung",icon:HeartPulse,href:"/arena?category=recovery"}];
+ return <section className="mt-9" aria-labelledby="arena-heading"><div className="mb-4 flex items-end justify-between gap-2"><div><p className="text-xs font-bold uppercase tracking-widest text-accent">Zusatztraining</p><h2 id="arena-heading" className="font-display text-2xl font-bold">Trainings-Arena</h2><p className="text-sm text-muted">Dein Training. Dein Tempo.</p></div><Link href="/arena" className="text-sm font-semibold text-accent">Alle Übungen →</Link></div><div className="grid grid-cols-2 gap-3">{items.map(({label,detail,icon:Icon,href})=><Link key={href} href={href} className="card flex min-h-36 flex-col items-start gap-2 border border-white/10 hover:border-accent/60"><Icon className="h-7 w-7 text-accent" aria-hidden/><span className="font-semibold">{label}</span><span className="text-xs text-muted">{detail}</span><ArrowRight className="mt-auto h-4 w-4 text-accent"/></Link>)}</div></section>;
+}
